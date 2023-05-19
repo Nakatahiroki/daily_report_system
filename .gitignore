@@ -1,0 +1,24 @@
+# Compiled class file
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Maven
+target/
+
+# eclips
+.classpath
+.project
+.settings/
+build/
+
+# OS Files
+Thumbs.db
+.DS_Store
+
+# Application Properties
+src/main/resources/application.properties
+

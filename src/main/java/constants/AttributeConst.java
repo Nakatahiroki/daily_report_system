@@ -2,7 +2,7 @@ package constants;
 
 
 /**
-* 画面の項目地等を定義するEnumクラス
+* 画面の項目値等を定義するEnumクラス
 *
 */
 

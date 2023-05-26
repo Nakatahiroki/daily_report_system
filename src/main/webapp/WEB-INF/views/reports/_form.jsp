@@ -18,7 +18,7 @@
 <br /><br />
 
 <label>氏名</label><br />
-<c:out value="${sissionScope.login_employee.name}" />
+<c:out value="${sessionScope.login_employee.name}" />
 <br /><br />
 
 <label for="${AttirbuteConst.REP_TITLE.getValue()}">タイトル</label><br />

@@ -86,24 +86,22 @@ public class ReportAction extends ActionBase {
         forward(ForwardConst.FW_REP_NEW);
 
     }
-
     /**
      * 新規登録を行う
      * @throws ServletException
      * @throws IOException
      */
-
-    public void create() throws ServletException, IOException{
+    public void create() throws ServletException, IOException {
 
         //CSRF対策 tokenのチェック
-        if(checkToken()) {
+        if (checkToken()) {
 
-            //日報の日付が入力されていれば、今日の日付を設定
+            //日報の日付が入力されていなければ、今日の日付を設定
             LocalDate day = null;
-            if(getRequestParam(AttributeConst.REP_DATE) == null
-                || getRequestParam(AttributeConst.REP_DATE).equals("")){
+            if (getRequestParam(AttributeConst.REP_DATE) == null
+                    || getRequestParam(AttributeConst.REP_DATE).equals("")) {
                 day = LocalDate.now();
-            }else {
+            } else {
                 day = LocalDate.parse(getRequestParam(AttributeConst.REP_DATE));
             }
 
@@ -121,29 +119,31 @@ public class ReportAction extends ActionBase {
                     null);
 
             //日報情報登録
-             List<String> errors = service.create(rv);
+            List<String> errors = service.create(rv);
 
-             if(errors.size() > 0) {
-                 //登録中にエラーがあった場合
+            if (errors.size() > 0) {
+                //登録中にエラーがあった場合
 
-                 putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
-                 putRequestScope(AttributeConst.REPORT, rv); //入力された日報情報
-                 putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
+                putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
+                putRequestScope(AttributeConst.REPORT, rv);//入力された日報情報
+                putRequestScope(AttributeConst.ERR, errors);//エラーのリスト
 
-                 //新規登録画面を再表示
-                 forward(ForwardConst.FW_REP_NEW);
+                //新規登録画面を再表示
+                forward(ForwardConst.FW_REP_NEW);
 
-             }else {
-                 //登録中にエラーがなかった場合
+            } else {
+                //登録中にエラーがなかった場合
 
-                 //セッションに登録完了のフラッシュメッセージを設定
-                 putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
+                //セッションに登録完了のフラッシュメッセージを設定
+                putSessionScope(AttributeConst.FLUSH, MessageConst.I_REGISTERED.getMessage());
 
-                 //一覧画面にリダイレクト
-                 redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
-                }
+                //一覧画面にリダイレクト
+                redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+            }
         }
-        }
+    }
+
+
 
     /**
      * 詳細画面を表示する

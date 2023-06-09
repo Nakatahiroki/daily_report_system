@@ -6,6 +6,7 @@
 <c:set var="actRep" value="${ForwardConst.ACT_REP.getValue()}" />
 <c:set var="commIdx" value="${ForwardConst.CMD_INDEX.getValue()}" />
 <c:set var="commEdt" value="${ForwardConst.CMD_EDIT.getValue()}" />
+<c:set var="commGod" value="${ForwardConst.CMD_GOOD.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
@@ -37,14 +38,22 @@
                     <fmt:parseDate value="${report.updatedAt}" pattern="yyyy-MM-dd'T'HH:mm:ss" var="updateDay" type="date" />
                     <td><fmt:formatDate value="${updateDay}" pattern="yyyy-MM-dd HH:mm:ss" /></td>
                 </tr>
+                <tr>
+                    <th>いいね！数</th>
+                    <td><c:out value="${report.goodCount} 件" /></td>
             </tbody>
         </table>
 
-        <c:if test="${sessionScope.login_employee.id == report.employee.id}">
+        <c:choose>
+            <c:when test="${sessionScope.login_employee.id == report.employee.id}">
             <p>
                 <a href="<c:url value='?action=${actRep}&command=${commEdt}&id=${report.id}' />">この日報を編集する</a>
             </p>
-        </c:if>
+            </c:when>
+            <c:otherwise>    <%--ここを追加 --%>
+                <a href="<c:url value='?action=${actRep}&command=${commGod}&id=${report.id}' />">この日報にいいね！する</a>
+            </c:otherwise>
+        </c:choose>
 
         <p>
             <a href="<c:url value='?action=${actRep}&command=${commIdx}' />">一覧に戻る</a>

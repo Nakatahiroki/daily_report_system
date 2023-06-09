@@ -52,6 +52,11 @@ public class ReportView {
      * 更新日時
      */
     private LocalDateTime updatedAt;
+
+    /**
+     * いいね！ ※追記
+     */
+    private Integer goodCount;
 }
 
 

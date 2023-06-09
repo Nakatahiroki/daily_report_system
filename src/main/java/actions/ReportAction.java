@@ -102,6 +102,7 @@ public class ReportAction extends ActionBase {
                     || getRequestParam(AttributeConst.REP_DATE).equals("")) {
                 day = LocalDate.now();
             } else {
+                //getRequestParam()でString型で受け取った日付を LocalDate 型にキャスト
                 day = LocalDate.parse(getRequestParam(AttributeConst.REP_DATE));
             }
 
@@ -116,7 +117,8 @@ public class ReportAction extends ActionBase {
                     getRequestParam(AttributeConst.REP_TITLE),
                     getRequestParam(AttributeConst.REP_CONTENT),
                     null,
-                    null);
+                    null,
+                    0);
 
             //日報情報登録
             List<String> errors = service.create(rv);
@@ -215,9 +217,8 @@ public class ReportAction extends ActionBase {
              //日報データを更新する
              List<String> errors = service.update(rv);
 
+             //更新中にエラーが発生した場合
              if(errors.size() > 0) {
-                 //更新中にエラーが発生した場合
-
                  putRequestScope(AttributeConst.TOKEN, getTokenId()); //CSRF対策用トークン
                  putRequestScope(AttributeConst.REPORT, rv); //入力された日報情報
                  putRequestScope(AttributeConst.ERR, errors); //エラーのリスト
@@ -238,4 +239,33 @@ public class ReportAction extends ActionBase {
          }
 
      }
-}
+
+     /**
+      * 日報にいいねするメソッド
+      */
+     public void goodCount() throws ServletException, IOException{
+
+         //idを条件に日報データを取得する
+         ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+         //いいね数を加算する
+         int goodCount = rv.getGoodCount();//ReportViewクラスのgetGoodCount()を呼び出し、変数goodCount代入(現在のいいね数)。
+         goodCount = goodCount + 1;//現在のいいね数に1加算する。
+         rv.setGoodCount(goodCount);//rv.setGoodCountメソッドで加算したいいね数をセットする。
+
+         //日報データを更新する
+         service.update(rv);
+
+         //セッションにいいね完了のフラッシュメッセージをセット
+         putSessionScope(AttributeConst.FLUSH, MessageConst.I_GOOD_COUNTED.getMessage());
+
+         //一覧画面にリダイレクト
+         redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+
+
+
+     }
+
+
+      }
+

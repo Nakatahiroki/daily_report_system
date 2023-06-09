@@ -94,6 +94,13 @@ public class Report {
     @Column(name = JpaConst.REP_COL_UPDATED_AT, nullable = false)
     private LocalDateTime updatedAt;
 
+    /**
+     * いいね！  //※ 追記
+     */
+    @Column(name = JpaConst.REP_COL_GOOD_COUNT, nullable = false)
+    private Integer goodCount;
+
+
 
 }
 

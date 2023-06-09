@@ -23,14 +23,15 @@ public class EmployeeAction extends ActionBase {
     private EmployeeService service;
 
     /**
-     * メソッドを実行する
+     * フロントコントローラから直接呼び出されるメソッド
      */
     @Override
     public void process() throws ServletException,IOException{
 
+        //テーブル操作で必要となる EmployeeService のインスタンスを生成
         service = new EmployeeService();
 
-        //メソッドを実行
+        //ActionBaseクラスのinvoke()メソッドを実行
         invoke();
 
         service.close();
@@ -44,17 +45,22 @@ public class EmployeeAction extends ActionBase {
      */
     public void index() throws ServletException, IOException{
 
-     //管理者かどうかのチェック /追記
+        //管理者かどうかのチェック /追記
         if(checkAdmin()) { //追記
 
 
         //指定されたページ数の一覧画面に表示するデータを取得
+        //ActionBase クラスの getPage() メソッドを利用し、リクエストからpageを取得
         int page = getPage();
+
+        //EmployeeService クラスの getPerPage(page) メソッドを呼び出し、表示用データを取得
         List<EmployeeView> employees = service.getPerPage(page);
 
         //全ての従業員データの件数を取得
+        //EmployeeService クラスのcountAll()を呼び出し全データの件数を取得
         long employeeCount = service.countAll();
 
+        //ActionBaseクラスのputRequestScope()メソッドを利用し、リクエストスコープにデータをセット
         putRequestScope(AttributeConst.EMPLOYEES, employees); //取得した従業員データ
         putRequestScope(AttributeConst.EMP_COUNT, employeeCount); //全ての従業員データの件数
         putRequestScope(AttributeConst.PAGE, page); //ページ数
@@ -72,6 +78,7 @@ public class EmployeeAction extends ActionBase {
     } //追記
 
     }
+
 
 
     /**

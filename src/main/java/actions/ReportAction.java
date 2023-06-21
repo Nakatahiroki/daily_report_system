@@ -2,16 +2,19 @@ package actions;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.GoodView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.GoodService;
 import services.ReportService;
 
 /**
@@ -24,7 +27,7 @@ public class ReportAction extends ActionBase {
     private ReportService service;
 
     /**
-     * メソッドを実行する
+     * フロントコントローラから直接呼び出されるメソッド
      */
     @Override
     public void process() throws ServletException, IOException{
@@ -34,6 +37,7 @@ public class ReportAction extends ActionBase {
         //メソッドを実行
         invoke();
         service.close();
+
     }
 
     /**
@@ -156,12 +160,25 @@ public class ReportAction extends ActionBase {
 
          //idを条件に日報データを取得する
          ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+         //セッションからログイン中の従業員情報を取得
+         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+
+        //指定の日報にいいねした従業員の件数を取得
+         GoodService goodService = new GoodService();
+         long getGoodCount = goodService.getGoodCount(ev, rv);
+
+
+
          if(rv == null) {
              //該当の日報データが存在しない場合はエラー画面を表示
              forward(ForwardConst.FW_ERR_UNKNOWN);
 
          }else {
              putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
+             putRequestScope(AttributeConst.LOGIN_EMP, ev); //ログイン中の従業員データ
+             request.setAttribute("good_count", getGoodCount);//指定の日報にいいねした従業員の件数を取得
 
              //詳細画面を表示
              forward(ForwardConst.FW_REP_SHOW);
@@ -240,32 +257,105 @@ public class ReportAction extends ActionBase {
 
      }
 
+
      /**
       * 日報にいいねするメソッド
       */
-     public void goodCount() throws ServletException, IOException{
+     public void good() throws ServletException, IOException{
+
 
          //idを条件に日報データを取得する
          ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+         //ログイン中の従業員情報を取得
+         EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+        //現在日時を取得
+         LocalDateTime day = LocalDateTime.now();
+
+         //パラメータの値をもとにいいね情報のインスタンスを作成する
+         GoodView gv = new GoodView(
+                 null,
+                 ev, //ログインしている従業員を、いいねする者として登録する
+                 rv, //いいねをする日報
+                 day, //いいねする日時
+                 day);
+
 
          //いいね数を加算する
          int goodCount = rv.getGoodCount();//ReportViewクラスのgetGoodCount()を呼び出し、変数goodCount代入(現在のいいね数)。
          goodCount = goodCount + 1;//現在のいいね数に1加算する。
          rv.setGoodCount(goodCount);//rv.setGoodCountメソッドで加算したいいね数をセットする。
 
+
+         //いいねテーブルに登録する
+         GoodService goodService = new GoodService();//GoodServiceクラス呼び出し
+         goodService.create(gv);//createメソッドでテーブルに登録
+
          //日報データを更新する
-         service.update(rv);
+         service.updated(rv);
+
 
          //セッションにいいね完了のフラッシュメッセージをセット
          putSessionScope(AttributeConst.FLUSH, MessageConst.I_GOOD_COUNTED.getMessage());
 
          //一覧画面にリダイレクト
          redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
+         }
+
+
+
+
+
+
+         /**
+          * いいねした人一覧ページを表示する
+          * @throws ServletException
+          * @throws IOException
+          */
+         public void goodIndex() throws ServletException, IOException{
+
+
+             GoodService goodService = new GoodService();
+
+             //idを条件に日報データを取得する
+             ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+             //指定した日報のいいねデータを、指定されたページ数の一覧画面に表示する分取得する
+            int page = getPage();
+             List<GoodView> goods = goodService.getMinePerPage(rv, page);
+
+
+             //指定した日報データのいいね件数を取得
+             long myGoodsCount = goodService.countAllMine(rv);
+
+             //jspに送る値をセット
+             request.setAttribute("goods",goods);//取得した日報データ
+             request.setAttribute("goods_count", myGoodsCount); //指定した日報のいいねの数
+             putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
+             putRequestScope(AttributeConst.PAGE, page); //ページ数
+             putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+
+
+             //いいねした人一覧画面を表示
+             forward(ForwardConst.FW_REP_GOOD);
+
+             }
+
 
 
 
      }
 
 
-      }
+
+
+
+
+
+
+
+
+
+
 

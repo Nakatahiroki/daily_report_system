@@ -50,8 +50,10 @@
                 <a href="<c:url value='?action=${actRep}&command=${commEdt}&id=${report.id}' />">この日報を編集する</a>
             </p>
             </c:when>
-            <c:otherwise>    <%--ここを追加 --%>
+            <c:when test="${good_count < 1}">
                 <a href="<c:url value='?action=${actRep}&command=${commGod}&id=${report.id}' />">この日報にいいね！する</a>
+            </c:when>
+            <c:otherwise>
             </c:otherwise>
         </c:choose>
 

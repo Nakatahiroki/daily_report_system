@@ -121,6 +121,27 @@ public class ReportService extends ServiceBase {
         return errors;
     }
 
+    /**
+     * いいね登録時に日時以外の日報データを更新する
+     * @param rv 日報の更新内容
+     * @return バリデーションで発生したエラーのリスト
+     */
+    public List<String> updated(ReportView rv){
+
+        //バリデーションを行う
+        List<String> errors = ReportValidator.validate(rv);
+
+        if(errors.size() == 0) {
+
+            updateInternal(rv);
+        }
+
+        //バリデーションで発生したエラーを返却(エラーが無ければ0件の空リスト)
+        return errors;
+    }
+
+
+
 
     /**
      * idを条件にデータを1件取得する

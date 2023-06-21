@@ -3,6 +3,8 @@
     <persistence-unit name="daily_report_system" transaction-type="RESOURCE_LOCAL">
     	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>models.Employee</class>
+        <class>models.Report</class>
+        <class>models.Good</class>
         <properties>
             <property name="javax.persistence.schema-generation.database.action" value="create"/>
             <property name="hibernate.direct" value="org.hibernate.dilect.MySQL8Dialect"/>

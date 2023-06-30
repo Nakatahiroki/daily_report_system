@@ -8,12 +8,14 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.FollowView;
 import actions.views.GoodView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.FollowService;
 import services.GoodService;
 import services.ReportService;
 
@@ -160,6 +162,7 @@ public class ReportAction extends ActionBase {
 
          //idを条件に日報データを取得する
          ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+         EmployeeView ev1 = rv.getEmployee();
 
          //セッションからログイン中の従業員情報を取得
          EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
@@ -168,6 +171,10 @@ public class ReportAction extends ActionBase {
         //指定の日報にいいねした従業員の件数を取得
          GoodService goodService = new GoodService();
          long getGoodCount = goodService.getGoodCount(ev, rv);
+
+         //ログイン中の従業員がフォローした日報の件数を取得
+         FollowService fs = new FollowService();
+         long myFollowsCount = fs.followCount(ev1, ev);
 
 
 
@@ -178,6 +185,8 @@ public class ReportAction extends ActionBase {
          }else {
              putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
              putRequestScope(AttributeConst.LOGIN_EMP, ev); //ログイン中の従業員データ
+
+             request.setAttribute("follow_count",myFollowsCount );
              request.setAttribute("good_count", getGoodCount);//指定の日報にいいねした従業員の件数を取得
 
              //詳細画面を表示
@@ -270,7 +279,7 @@ public class ReportAction extends ActionBase {
          //ログイン中の従業員情報を取得
          EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
 
-        //現在日時を取得
+         //現在日時を取得
          LocalDateTime day = LocalDateTime.now();
 
          //パラメータの値をもとにいいね情報のインスタンスを作成する
@@ -302,11 +311,6 @@ public class ReportAction extends ActionBase {
          //一覧画面にリダイレクト
          redirect(ForwardConst.ACT_REP, ForwardConst.CMD_INDEX);
          }
-
-
-
-
-
 
          /**
           * いいねした人一覧ページを表示する
@@ -343,9 +347,100 @@ public class ReportAction extends ActionBase {
              }
 
 
+         /**
+          * 日報の作成者をフォローするメソッド
+          */
+         public void follow() throws ServletException, IOException{
 
 
-     }
+             //idを条件に日報データを取得する
+             ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+             EmployeeView ev1 = rv.getEmployee();
+
+             //ログイン中の従業員情報を取得
+             EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+             //現在日時を取得
+             LocalDateTime day = LocalDateTime.now();
+
+             //パラメータの値をもとにいいね情報のインスタンスを作成する
+             FollowView fv = new FollowView(
+                     null,
+                     ev, //ログインしている従業員を、フォローする者として登録する
+                     ev1, //日報の作成者をフォローされる者として登録する
+                     day, //フォローする日時
+                     day);
+
+             //フォローテーブルに登録する
+             FollowService fs = new FollowService();//GoodServiceクラス呼び出し
+             fs.create(fv);//createメソッドでテーブルに登録
+
+
+             //セッションにフォロー完了のフラッシュメッセージをセット
+             putSessionScope(AttributeConst.FLUSH, MessageConst.I_FOLLOWED.getMessage());
+
+             //タイムライン画面にリダイレクト
+             redirect(ForwardConst.ACT_REP, ForwardConst.CMD_FOLLOW_INDEX);
+             }
+
+
+
+
+
+         /**
+          * タイムラインページを表示する
+          * @throws ServletException
+          * @throws IOException
+          */
+         public void followIndex() throws ServletException, IOException{
+
+             //セッションからログイン中の従業員情報を取得
+             EmployeeView loginEmployee = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+             //idを条件に日報データを取得する
+             ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+
+             //ログイン中の従業員がフォローした従業員の日報データを、指定されたページ数の一覧画面に表示する分取得する
+             int page = getPage();
+             FollowService fs = new FollowService();
+             List<ReportView> reports = fs.getMinePerPage(loginEmployee, page);
+
+             //ログイン中の従業員がフォローした日報の件数を取得
+             long myFollowsCount = fs.getFollowCount(loginEmployee);
+
+
+             //JSPに送る値をセットする
+             request.setAttribute("reports", reports); //取得した日報データ
+             putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
+             request.setAttribute("follow_count",myFollowsCount);
+             putRequestScope(AttributeConst.PAGE, page); //ページ数
+             putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+
+
+             //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
+             String flush = getSessionScope(AttributeConst.FLUSH);
+             if (flush != null) {
+                 putRequestScope(AttributeConst.FLUSH, flush);
+                 removeSessionScope(AttributeConst.FLUSH);
+             }
+
+             //タイムライン画面を表示
+             forward(ForwardConst.FW_REP_FOLLOW);
+
+             }
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

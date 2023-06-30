@@ -17,6 +17,7 @@ public enum MessageConst {
     I_UPDATED("更新が完了しました。"),
     I_DELETED("削除が完了しました。"),
     I_GOOD_COUNTED("いいね！しました。"), //←ここを追加
+    I_FOLLOWED("フォローしました。"),
 
     //バリデーション
     E_NONAME("氏名を入力してください。"),

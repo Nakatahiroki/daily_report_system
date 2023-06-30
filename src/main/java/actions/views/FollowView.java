@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * いいね情報について画面の入力値・出力値を扱うViewモデル
+ * フォロー情報についての画面の入力値・出力値を扱うViewモデル
  *
  */
 
@@ -17,7 +17,11 @@ import lombok.Setter;
 @NoArgsConstructor  //引数なしコンストラクタを自動生成する(Lombok)
 @AllArgsConstructor //全てのクラスフィールドを引数にもつ引数ありコンストラクタを自動生成する(Lombok)
 
-public class GoodView {
+
+
+public class FollowView {
+
+
 
     /**
      * id
@@ -25,14 +29,14 @@ public class GoodView {
     private Integer id;
 
     /**
-     * いいねした従業員のid
+     * フォローする従業員
      */
     private EmployeeView employee;
 
     /**
-     * いいねする日報のid
+     * フォローされた従業員
      */
-    private ReportView report;
+    private EmployeeView employeed;
 
     /**
      * 登録日時
@@ -43,4 +47,8 @@ public class GoodView {
      * 更新日時
      */
     private LocalDateTime updatedAt;
+
+
+
+
 }

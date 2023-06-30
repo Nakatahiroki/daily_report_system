@@ -95,6 +95,7 @@ public class GoodService extends ServiceBase {
     * @return 取得データのインスタンス
     */
     private Good findOneInternal(int id) {
+
         Good g = em.find(Good.class, id);
 
         return g;
@@ -103,7 +104,7 @@ public class GoodService extends ServiceBase {
 
 
     /**
-     * 指定の日報とログインしている従業員の2つを条件にデータを取得する
+     * 指定の日報にログイン中の従業員がいいねをした件数を取得する
      * @param employee
      * @param report
      * @return 日報データの件数
@@ -118,40 +119,9 @@ public class GoodService extends ServiceBase {
         return count;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * いいねデータを1件登録する
-     * @param gv 日報データ
+     * @param gv いいねデータ
      */
     private void createInternal(GoodView gv) {
 
@@ -159,8 +129,6 @@ public class GoodService extends ServiceBase {
         em.persist(GoodConverter.toModel(gv));
         em.getTransaction().commit();
     }
-
-
 
 
     /**

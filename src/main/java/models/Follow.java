@@ -19,40 +19,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * いいねデータのDTOモデル
+ * フォローデータのDTOモデル
+ *
  *
  */
-@Table(name = "goods")
+@Table(name = "follows")
 @NamedQueries({
-    //全てのいいねをidの降順に取得する
-    @NamedQuery(
-            name = "good.getAll",
-            query = "SELECT g FROM Good AS g ORDER BY g.id DESC"
-            ),
-    //全てのいいねの件数を取得する
-    @NamedQuery(
-            name = "good.Count",
-            query = "SELECT  COUNT(g) FROM Good AS g"
-            ),
-    //指定した日報にいいねした人のデータを取得
-    @NamedQuery(
-           name = "good.getAllMine",
-           query = "SELECT g FROM Good AS g WHERE g.good_report_id = :report ORDER BY g.id DESC"
-          ),
 
-    //指定した日報にいいねした件数を取得する(〇件)
-    @NamedQuery(
-           name = "good.countAllMine",
-           query = "SELECT COUNT(g) FROM Good AS g WHERE g.good_report_id = :report"
+
+    //ログイン中の従業員がフォローした日報作成者の日報データ
+   @NamedQuery(
+           name = "follow.getAllMine",
+           query = "SELECT r FROM Report AS r, Follow AS f WHERE r.employee = f.followed_employee_id AND f.follow_employee_id =:employee ORDER BY r.id DESC"
            ),
-    //指定した日報にログイン中の従業員がいいねした件数を取得
+
+    //ログイン中の従業員がフォローした日報作成者の日報の総件数
     @NamedQuery(
-            name = "good.countEmp",
-            query = "SELECT COUNT(g) FROM Good AS g WHERE g.good_report_id = :report AND g.good_employee_id = :employee"
+            name = "follow.countEmp",
+            query = "SELECT COUNT(r) FROM Report AS r, Follow AS f WHERE r.employee = f.followed_employee_id AND f.follow_employee_id = :employee"
             ),
 
-    })
+    //ログイン中の従業員が指定の従業員をフォローした件数
+    @NamedQuery(
+            name = "follow.count",
+            query = "SELECT COUNT(f) FROM Follow AS f WHERE f.followed_employee_id = :followed_employee AND f.follow_employee_id =:follow_employee"
+            ),
 
+
+})
 
 @Getter //全てのクラスフィールドについてgetterを自動生成する(Lombok)
 @Setter //全てのクラスフィールドについてsetterを自動生成する(Lombok)
@@ -61,8 +55,7 @@ import lombok.Setter;
 @Entity
 
 
-
-public class Good {
+public class Follow {
 
     /**
      * id
@@ -73,18 +66,18 @@ public class Good {
     private Integer id;
 
     /**
-     * いいねをした従業員
+     * フォローする従業員
      */
     @ManyToOne
-    @JoinColumn(name = "good_employee_id", nullable = false)
-    private Employee good_employee_id;
+    @JoinColumn(name = "follow_employee_id", nullable = false)
+    private Employee follow_employee_id;
 
     /**
-     * いいねをする日報
+     * フォローされた従業員
      */
     @ManyToOne
-    @JoinColumn(name = "good_report_id", nullable = false)
-    private Report good_report_id;
+    @JoinColumn(name = "followed_employee_id", nullable = false)
+    private Employee followed_employee_id;
 
     /**
      * 登録日時
@@ -95,9 +88,6 @@ public class Good {
     /**
      * 更新日時
      */
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updatede_at", nullable = false)
     private LocalDateTime updatedAt;
-
-
-
 }

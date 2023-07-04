@@ -10,6 +10,7 @@ import actions.views.FollowView;
 import actions.views.ReportConverter;
 import actions.views.ReportView;
 import constants.JpaConst;
+import models.Follow;
 import models.Report;
 
 /**
@@ -47,6 +48,31 @@ public class FollowService extends ServiceBase {
         em.persist(FollowConverter.toModel(fv));
         em.getTransaction().commit();
     }
+
+
+    /**
+     * フォローデータを1件取得し、取得したデータを削除する
+     * @param fv フォローデータ
+     */
+
+    public FollowView destroy(EmployeeView employee, EmployeeView employee02) {
+
+        Follow f = (Follow) em.createNamedQuery("follow.destroy", Follow.class)
+                .setParameter("followed_employee", EmployeeConverter.toModel(employee))
+                .setParameter("follow_employee", EmployeeConverter.toModel(employee02))
+                .getSingleResult();
+            em.getTransaction().begin();
+            em.remove(f);       // データ削除
+            em.getTransaction().commit();
+            em.close();
+
+            return FollowConverter.toView(f);
+ }
+
+
+
+
+
 
     /**
      * ログイン中の従業員がフォローした日報作成者のデータをページ指定で取得する

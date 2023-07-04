@@ -8,6 +8,7 @@
 <c:set var="commEdt" value="${ForwardConst.CMD_EDIT.getValue()}" />
 <c:set var="commGod" value="${ForwardConst.CMD_GOOD.getValue()}" />
 <c:set var="commFol" value="${ForwardConst.CMD_FOLLOW.getValue()}" />
+<c:set var="commDes" value="${ForwardConst.CMD_FOLLOW_DESTROY.getValue()}" />
 
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
@@ -58,12 +59,18 @@
             </c:otherwise>
         </c:choose>
 
-        <c:if test="${follow_count < 1}">
+        <c:choose>
+        <c:when test="${follow_count < 1}">
           <p>
             <a href="<c:url value='?action=${actRep}&command=${commFol}&id=${report.id}' />">この日報の作成者をフォローする</a>
          </p>
-        </c:if>
-
+        </c:when>
+        <c:when test="${follow_count > 0 }">
+          <p>
+            <a href="<c:url value='?action=${actRep}&command=${commDes}&id=${report.id}' />">この日報の作成者のフォローをやめる</a>
+          </p>
+        </c:when>
+        </c:choose>
         <p>
             <a href="<c:url value='?action=${actRep}&command=${commIdx}' />">一覧に戻る</a>
         </p>

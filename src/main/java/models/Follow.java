@@ -46,6 +46,13 @@ import lombok.Setter;
             ),
 
 
+    //ログイン中の従業員がフォローした日報作成者のフォローデータ
+    @NamedQuery(
+            name = "follow.destroy",
+            query = "SELECT f FROM Follow AS f WHERE f.followed_employee_id = :followed_employee AND f.follow_employee_id =:follow_employee"
+            ),
+
+
 })
 
 @Getter //全てのクラスフィールドについてgetterを自動生成する(Lombok)

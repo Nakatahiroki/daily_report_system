@@ -364,7 +364,7 @@ public class ReportAction extends ActionBase {
              //現在日時を取得
              LocalDateTime day = LocalDateTime.now();
 
-             //パラメータの値をもとにいいね情報のインスタンスを作成する
+             //パラメータの値をもとにフォロー情報のインスタンスを作成する
              FollowView fv = new FollowView(
                      null,
                      ev, //ログインしている従業員を、フォローする者として登録する
@@ -373,7 +373,7 @@ public class ReportAction extends ActionBase {
                      day);
 
              //フォローテーブルに登録する
-             FollowService fs = new FollowService();//GoodServiceクラス呼び出し
+             FollowService fs = new FollowService();
              fs.create(fv);//createメソッドでテーブルに登録
 
 
@@ -384,8 +384,32 @@ public class ReportAction extends ActionBase {
              redirect(ForwardConst.ACT_REP, ForwardConst.CMD_FOLLOW_INDEX);
              }
 
+         /**
+          * 日報の作成者のフォローを削除するメソッド
+          */
+         public void destroy() throws ServletException, IOException{
+
+             //idを条件に日報データを取得する
+             ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+             //日報の作成者を取得
+             EmployeeView ev1 = rv.getEmployee();
+
+             //ログイン中の従業員情報を取得
+             EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
+             //フォローテーブルから削除する
+             FollowService fs = new FollowService();
+             fs.destroy(ev1, ev);
+
+             //セッションにフォロー解除のフラッシュメッセージをセット
+             putSessionScope(AttributeConst.FLUSH, MessageConst.I_FOLLOWED_DESTROY.getMessage());
 
 
+             //タイムライン画面にリダイレクト
+             redirect(ForwardConst.ACT_REP, ForwardConst.CMD_FOLLOW_INDEX);
+
+         }
 
 
          /**

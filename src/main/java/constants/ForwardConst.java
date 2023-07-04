@@ -31,6 +31,7 @@ public enum ForwardConst {
     CMD_GOOD("good"),
     CMD_FOLLOW("follow"),
     CMD_FOLLOW_INDEX("followIndex"),
+    CMD_FOLLOW_DESTROY("destroy"),
 
 
 
